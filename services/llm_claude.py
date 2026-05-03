@@ -19,7 +19,7 @@ async def call_claude(query: str) -> str:
     response = await client.chat.completions.create(
         model="anthropic/claude-haiku-4-5",
         messages=[{"role": "user", "content": PROMPT.format(query=query)}],
-        max_tokens=700,
+        max_tokens=1000,
         timeout=30
     )
     return response.choices[0].message.content

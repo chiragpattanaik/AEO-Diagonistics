@@ -40,21 +40,21 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
       transition={{ duration: 0.6, delay: 0.25, ease }}
     >
       <motion.div
-        className="relative flex flex-col gap-3 rounded-[2rem] border border-[var(--card-border)] bg-[var(--input-background)] p-3 shadow-2xl shadow-[var(--cyan)]/10 backdrop-blur-2xl transition duration-300 hover:border-[var(--cyan)]/40 hover:shadow-[var(--cyan)]/30 lg:flex-row"
+        className="relative flex flex-col gap-2 rounded-[1.75rem] border border-[var(--card-border)] bg-[var(--input-background)] p-2.5 shadow-2xl shadow-[var(--cyan)]/10 backdrop-blur-2xl transition duration-300 hover:border-[var(--cyan)]/40 hover:shadow-[var(--cyan)]/30 sm:gap-3 sm:rounded-[2rem] sm:p-3 lg:flex-row"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-r from-[var(--cyan)]/5 to-[var(--lime)]/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="absolute inset-0 rounded-[1.75rem] bg-gradient-to-r from-[var(--cyan)]/5 to-[var(--lime)]/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-[2rem]" />
 
-        <div className="relative flex min-w-0 flex-[1.2] items-center gap-4 px-4">
-          <Search className="size-6 shrink-0 text-[var(--lime)] opacity-70" />
+        <div className="relative flex min-w-0 flex-[1.2] items-center gap-3 px-3 sm:gap-4 sm:px-4">
+          <Search className="size-5 shrink-0 text-[var(--lime)] opacity-70 sm:size-6" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Query (e.g. best sneakers)"
             aria-label="Search query"
-            className="min-h-14 min-w-0 flex-1 border-0 bg-transparent text-base font-medium text-white placeholder:text-white/40 focus:shadow-none sm:text-lg"
+            className="min-h-12 min-w-0 flex-1 border-0 bg-transparent text-base font-medium text-white placeholder:text-white/40 focus:shadow-none sm:min-h-14 sm:text-lg"
           />
           <kbd className="hidden shrink-0 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-white/40 md:flex">
             <span>Ctrl</span>
@@ -64,21 +64,21 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
 
         <div className="hidden w-px bg-gradient-to-b from-transparent via-white/20 to-transparent lg:block" />
 
-        <div className="relative flex min-w-0 flex-1 items-center gap-4 px-4">
-          <Sparkles className="size-6 shrink-0 animate-pulse text-[var(--cyan)] opacity-70" />
+        <div className="relative flex min-w-0 flex-1 items-center gap-3 px-3 sm:gap-4 sm:px-4">
+          <Sparkles className="size-5 shrink-0 animate-pulse text-[var(--cyan)] opacity-70 sm:size-6" />
           <input
             value={targetBrand}
             onChange={(event) => setTargetBrand(event.target.value)}
             placeholder="Enter brand name"
             aria-label="Brand name"
-            className="min-h-14 min-w-0 flex-1 border-0 bg-transparent text-base font-medium text-white placeholder:text-white/40 focus:shadow-none sm:text-lg"
+            className="min-h-12 min-w-0 flex-1 border-0 bg-transparent text-base font-medium text-white placeholder:text-white/40 focus:shadow-none sm:min-h-14 sm:text-lg"
           />
         </div>
 
         <Button
           type="submit"
           disabled={isLoading}
-          className="relative h-14 shrink-0 overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-[var(--cyan)] to-[var(--lime)] px-10 text-base font-extrabold text-black transition duration-300 hover:shadow-lg hover:shadow-[var(--cyan)]/50 disabled:opacity-70 lg:min-w-48"
+          className="relative h-12 w-full shrink-0 overflow-hidden rounded-2xl border-0 bg-gradient-to-r from-[var(--cyan)] to-[var(--lime)] px-8 text-base font-extrabold text-black transition duration-300 hover:shadow-lg hover:shadow-[var(--cyan)]/50 disabled:opacity-70 sm:h-14 sm:rounded-3xl lg:w-auto lg:min-w-48"
         >
           <span className="relative z-[1] flex items-center gap-2">
             {isLoading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}

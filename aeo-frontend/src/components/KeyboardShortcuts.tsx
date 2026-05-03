@@ -43,7 +43,7 @@ export function KeyboardShortcuts({ onReset }: { onReset: () => void }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1 }}
         onClick={() => setIsVisible(true)}
-        className="group fixed bottom-6 right-6 z-40 flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-[var(--cyan)] to-[var(--lime)] shadow-2xl shadow-[var(--cyan)]/30 transition duration-300 hover:scale-110"
+        className="group fixed bottom-6 right-6 z-40 hidden size-12 items-center justify-center rounded-full bg-gradient-to-br from-[var(--cyan)] to-[var(--lime)] shadow-2xl shadow-[var(--cyan)]/30 transition duration-300 hover:scale-110 md:flex"
       >
         <Command className="size-5 text-black transition duration-300 group-hover:rotate-12" />
       </motion.button>

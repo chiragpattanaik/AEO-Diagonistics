@@ -24,7 +24,7 @@ export default function Home() {
   const { appState, data, error, elapsedTime, responseTime, runDiagnose, reset } = useDiagnose()
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[var(--background)]">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[var(--background)]">
       <ProgressBar />
       <Header />
       <GlowCursor />
@@ -42,10 +42,12 @@ export default function Home() {
         }}
       />
 
-      <main className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-10 pt-24 sm:px-8 sm:pb-12 sm:pt-24">
-        <div className="mb-8 sm:mb-10 xl:mb-12">
-          <HeroSection />
-        </div>
+      <main className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 pb-24 pt-24 sm:px-8 sm:pb-12 sm:pt-24">
+        {appState === "idle" ? (
+          <div className="mb-8 sm:mb-10 xl:mb-12">
+            <HeroSection />
+          </div>
+        ) : null}
 
         <AnimatePresence mode="wait">
           {appState === "idle" ? (

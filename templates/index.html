@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEO Diagnostic Tool — AI Brand Ranking Checker</title>
+    <meta name="description" content="Check how your brand ranks across GPT-4.1 and Gemini AI engines for any search query.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #0a0a0f; }
+        .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        .glow-btn { background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7); box-shadow: 0 0 30px rgba(139,92,246,0.3); transition: all 0.3s; }
+        .glow-btn:hover { box-shadow: 0 0 50px rgba(139,92,246,0.5); transform: translateY(-1px); }
+        .glow-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .card-hover { transition: all 0.3s; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .spinner { width: 48px; height: 48px; border: 4px solid rgba(139,92,246,0.2); border-top-color: #8b5cf6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .input-field:focus { border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139,92,246,0.15); outline: none; }
+        .response-box { max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #8b5cf6 transparent; }
+        .bg-grid { background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+    </style>
+</head>
+<body class="min-h-screen bg-grid text-white">
+    <!-- Decorative blobs -->
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-12">
+
+        <!-- HEADER -->
+        <header class="text-center mb-12">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs text-purple-300 mb-6">
+                <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                AI-Powered Brand Analysis
+            </div>
+            <h1 class="text-4xl md:text-5xl font-800 bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent mb-4">
+                AEO Diagnostic
+            </h1>
+            <p class="text-gray-400 text-lg max-w-xl mx-auto">
+                Find out how your brand ranks across GPT-4.1 and Gemini
+            </p>
+        </header>
+
+        <!-- STATE 1: INPUT FORM -->
+        <div id="formSection" class="max-w-lg mx-auto">
+            <div class="glass rounded-2xl p-8">
+                <div class="mb-6">
+                    <label for="queryInput" class="block text-sm font-medium text-gray-300 mb-2">Search query</label>
+                    <input type="text" id="queryInput" placeholder="best magnesium supplement for seniors"
+                        class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500">
+                </div>
+                <div class="mb-6">
+                    <label for="brandInput" class="block text-sm font-medium text-gray-300 mb-2">Your brand name</label>
+                    <input type="text" id="brandInput" placeholder="Nature Made"
+                        class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500">
+                </div>
+                <button id="runBtn" onclick="runDiagnostic()" class="glow-btn w-full py-3.5 rounded-xl text-white font-semibold text-base">
+                    Run Diagnostic
+                </button>
+                <p class="text-center text-gray-500 text-xs mt-4">Each query uses paid API credits (~$0.05)</p>
+                <p id="formError" class="text-center text-red-400 text-sm mt-3 hidden"></p>
+            </div>
+        </div>
+
+        <!-- STATE: LOADING -->
+        <div id="loadingSection" class="hidden text-center py-20">
+            <div class="spinner mx-auto mb-6"></div>
+            <p class="text-gray-300 text-lg">Querying GPT-4.1 and Gemini simultaneously...</p>
+            <p class="text-gray-500 text-sm mt-2">This usually takes 5–15 seconds</p>
+        </div>
+
+        <!-- STATE 2: RESULTS -->
+        <div id="resultsSection" class="hidden">
+            <!-- Overall Score Banner -->
+            <div id="scoreBanner" class="rounded-2xl p-6 text-center mb-8 fade-in">
+                <p id="scoreText" class="text-xl font-bold"></p>
+                <p class="text-sm mt-1 opacity-80">
+                    Query: "<span id="scoreQuery"></span>" · Brand: "<span id="scoreBrand"></span>"
+                </p>
+            </div>
+
+            <!-- Engine Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8" id="cardsContainer"></div>
+
+            <!-- Run Another -->
+            <div class="text-center fade-in">
+                <button onclick="resetForm()" class="px-8 py-3 rounded-xl glass text-gray-300 hover:text-white hover:border-purple-500/50 transition-all font-medium">
+                    ← Run another query
+                </button>
+            </div>
+        </div>
+
+        <!-- GLOBAL ERROR -->
+        <div id="errorSection" class="hidden max-w-lg mx-auto">
+            <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center">
+                <p class="text-red-400 text-lg font-semibold mb-2">Something went wrong</p>
+                <p id="errorText" class="text-red-300/80 text-sm mb-6"></p>
+                <button onclick="resetForm()" class="px-6 py-2.5 rounded-xl glass text-gray-300 hover:text-white transition-all">
+                    ← Try again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const engineMeta = {
+            gpt4:   { name: 'GPT-4.1', color: '#10b981', icon: '🟢' },
+            gemini: { name: 'Gemini',   color: '#3b82f6', icon: '🔵' }
+        };
+
+        function show(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function runDiagnostic() {
+            const query = document.getElementById('queryInput').value.trim();
+            const brand = document.getElementById('brandInput').value.trim();
+            const errEl = document.getElementById('formError');
+
+            errEl.classList.add('hidden');
+
+            if (query.length < 10) { errEl.textContent = 'Query must be at least 10 characters'; errEl.classList.remove('hidden'); return; }
+            if (brand.length < 2)  { errEl.textContent = 'Brand name must be at least 2 characters'; errEl.classList.remove('hidden'); return; }
+
+            hide('formSection'); hide('resultsSection'); hide('errorSection');
+            show('loadingSection');
+            document.getElementById('runBtn').disabled = true;
+
+            try {
+                const response = await fetch('/diagnose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, targetBrand: brand })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.detail || `Server error (${response.status})`);
+                }
+
+                const data = await response.json();
+                renderResults(data);
+            } catch (err) {
+                hide('loadingSection');
+                document.getElementById('errorText').textContent = err.message;
+                show('errorSection');
+            } finally {
+                document.getElementById('runBtn').disabled = false;
+            }
+        }
+
+        function renderResults(data) {
+            hide('loadingSection');
+
+            // Banner
+            const banner = document.getElementById('scoreBanner');
+            banner.className = 'rounded-2xl p-6 text-center mb-8 fade-in ';
+            if (data.rankedCount === 2) banner.className += 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300';
+            else if (data.rankedCount > 0) banner.className += 'bg-yellow-500/15 border border-yellow-500/30 text-yellow-300';
+            else banner.className += 'bg-red-500/15 border border-red-500/30 text-red-300';
+
+            document.getElementById('scoreText').textContent = data.overallScore;
+            document.getElementById('scoreQuery').textContent = data.query;
+            document.getElementById('scoreBrand').textContent = data.targetBrand;
+
+            // Cards
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            for (const [key, meta] of Object.entries(engineMeta)) {
+                const r = data.results[key];
+                const card = document.createElement('div');
+                card.className = 'glass rounded-2xl p-6 card-hover fade-in';
+                card.style.animationDelay = key === 'gpt4' ? '0.1s' : '0.2s';
+                card.style.opacity = '0';
+
+                let badge = '';
+                if (r.error) badge = '<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">API Error</span>';
+                else if (r.ranked) badge = `<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ranked #${r.position}</span>`;
+                else badge = '<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">Not ranked</span>';
+
+                const mention = r.mention ? `<div class="mt-4 p-3 rounded-lg bg-white/5 text-gray-300 text-sm">${escapeHtml(r.mention)}</div>` : '';
+
+                const toggleId = `toggle-${key}`;
+                const respId = `resp-${key}`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-white">${meta.icon} ${meta.name}</h3>
+                        ${badge}
+                    </div>
+                    ${mention}
+                    <button onclick="toggleResponse('${respId}', '${toggleId}')" id="${toggleId}"
+                        class="mt-4 text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
+                        ▸ See full response
+                    </button>
+                    <div id="${respId}" class="hidden mt-3 p-4 rounded-lg bg-black/30 text-gray-400 text-xs leading-relaxed response-box whitespace-pre-wrap">${escapeHtml(r.fullResponse)}</div>
+                `;
+                container.appendChild(card);
+            }
+
+            show('resultsSection');
+        }
+
+        function toggleResponse(respId, btnId) {
+            const el = document.getElementById(respId);
+            const btn = document.getElementById(btnId);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                btn.textContent = '▾ Hide full response';
+            } else {
+                el.classList.add('hidden');
+                btn.textContent = '▸ See full response';
+            }
+        }
+
+        function escapeHtml(text) {
+            const d = document.createElement('div');
+            d.textContent = text || '';
+            return d.innerHTML;
+        }
+
+        function resetForm() {
+            hide('resultsSection'); hide('errorSection'); hide('loadingSection');
+            show('formSection');
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !document.getElementById('formSection').classList.contains('hidden')) runDiagnostic();
+        });
+    </script>
+</body>
+</html>

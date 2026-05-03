@@ -17,7 +17,7 @@ Format your response as a numbered list like:
 
 async def call_claude(query: str) -> str:
     response = await client.chat.completions.create(
-        model="anthropic/claude-sonnet-4.6",
+        model="anthropic/claude-haiku-4-5",
         messages=[{"role": "user", "content": PROMPT.format(query=query)}],
         max_tokens=700,
         timeout=30
